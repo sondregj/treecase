@@ -1,6 +1,8 @@
 package main
 
 import (
+	"encoding/json"
+	"flag"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,18 +10,40 @@ import (
 )
 
 func main() {
+	var (
+		output = flag.String("o", "", "output format")
+	)
+	flag.Parse()
+
 	var root string
-	if len(os.Args) > 1 {
-		root = os.Args[1]
+	if len(flag.Args()) > 1 {
+		root = flag.Args()[1]
 	} else {
 		root = "."
 	}
 
-	fmt.Println(check(root))
+	res, err := check(root)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	switch *output {
+	case "json":
+		enc := json.NewEncoder(os.Stdout)
+		enc.SetIndent("", "  ")
+		err := enc.Encode(res)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "error: %s\n", err)
+			os.Exit(1)
+		}
+	default:
+		fmt.Println(res)
+	}
 }
 
 type result struct {
-	paths []string
+	Paths []string `json:"paths"`
 }
 
 func check(root string) ([]result, error) {
@@ -44,15 +68,15 @@ func check(root string) ([]result, error) {
 
 		v, exists := seen[norm]
 		if exists {
-			v.paths = append(v.paths, real)
+			v.Paths = append(v.Paths, real)
 			continue
 		}
 
-		seen[norm] = &result{paths: []string{real}}
+		seen[norm] = &result{Paths: []string{real}}
 	}
 
 	for _, v := range seen {
-		if len(v.paths) > 1 {
+		if len(v.Paths) > 1 {
 			res = append(res, *v)
 		}
 	}
