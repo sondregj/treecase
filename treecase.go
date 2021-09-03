@@ -13,6 +13,10 @@ func main() {
 	var (
 		output = flag.String("o", "", "output format")
 	)
+	flag.Usage = func() {
+		fmt.Fprintf(os.Stderr, "Usage: %s [options] <file>\n", filepath.Base(os.Args[0]))
+		flag.PrintDefaults()
+	}
 	flag.Parse()
 
 	var root string
