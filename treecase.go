@@ -42,7 +42,12 @@ func main() {
 			os.Exit(1)
 		}
 	default:
-		fmt.Println(res)
+		for _, v := range res {
+			for _, p := range v.Paths {
+				fmt.Printf("%s\n", p)
+			}
+			fmt.Println()
+		}
 	}
 }
 
