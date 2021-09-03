@@ -42,6 +42,9 @@ func main() {
 			os.Exit(1)
 		}
 	default:
+		if len(res) > 0 {
+			fmt.Fprintf(os.Stderr, "Conflicts found: count %d\n", len(res))
+		}
 		for _, v := range res {
 			for _, p := range v.Paths {
 				fmt.Printf("%s\n", p)
