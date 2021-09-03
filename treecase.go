@@ -28,21 +28,24 @@ func check(root string) ([]result, error) {
 		return nil, err
 	}
 
-	seen := map[string]string{} // normalized path -> real path
-	res := []result{}           // make map to unify matches
+	seen := map[string]*result{} // normalized path -> real paths
 	for _, f := range d {
 		p := filepath.Join(root, f.Name())
 
 		v, exists := seen[p]
 		if exists {
-			res = append(res, result{paths: []string{v, p}})
+			v.paths = append(v.paths, p)
+			continue
 		}
 
-		seen[strings.ToLower(p)] = p
+		seen[strings.ToLower(p)] = &result{paths: []string{p}}
 	}
 
-	if res == nil {
-		res = []result{}
+	var res []result
+	for _, v := range seen {
+		if len(v.paths) > 1 {
+			res = append(res, *v)
+		}
 	}
 
 	return res, nil
