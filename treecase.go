@@ -28,10 +28,19 @@ func check(root string) ([]result, error) {
 		return nil, err
 	}
 
+	var res []result
 	seen := map[string]*result{} // normalized path -> real paths
 	for _, f := range d {
 		real := filepath.Join(root, f.Name())
 		norm := strings.ToLower(real)
+
+		if f.IsDir() {
+			r, err := check(real)
+			if err != nil {
+				return nil, err
+			}
+			res = append(res, r...)
+		}
 
 		v, exists := seen[norm]
 		if exists {
@@ -42,7 +51,6 @@ func check(root string) ([]result, error) {
 		seen[norm] = &result{paths: []string{real}}
 	}
 
-	var res []result
 	for _, v := range seen {
 		if len(v.paths) > 1 {
 			res = append(res, *v)
