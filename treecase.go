@@ -30,15 +30,16 @@ func check(root string) ([]result, error) {
 
 	seen := map[string]*result{} // normalized path -> real paths
 	for _, f := range d {
-		p := filepath.Join(root, f.Name())
+		real := filepath.Join(root, f.Name())
+		norm := strings.ToLower(real)
 
-		v, exists := seen[p]
+		v, exists := seen[norm]
 		if exists {
-			v.paths = append(v.paths, p)
+			v.paths = append(v.paths, real)
 			continue
 		}
 
-		seen[strings.ToLower(p)] = &result{paths: []string{p}}
+		seen[norm] = &result{paths: []string{real}}
 	}
 
 	var res []result
